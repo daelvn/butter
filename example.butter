@@ -1,0 +1,11 @@
+# Comment
+#@noprint Vanishing comment
+[prefix]
+yeety:
+  #@vi: Just a test
+  do stuff @1
+
+[:]
+main:
+  yeety
+
