@@ -1,9 +1,9 @@
 package = "butter"
-version = "1.0-1"
+version = "1.0.1-1"
 
 source = {
   url = "git://github.com/daelvn/butter",
-  tag = "v1.0"
+  tag = "v1.0.1"
 }
 
 description = {
@@ -22,9 +22,11 @@ dependencies = {
 }
 
 build = {
-  type     = "builtin",
-  modules  = {
-    butter    = "butter",
-    libbutter = "libbutter.sh",
+  type    = "none",
+  install = {
+    bin   = {
+      butter    = "butter",
+      libbutter = "libbutter.sh"
+    },
   }
 }

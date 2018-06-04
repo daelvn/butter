@@ -52,7 +52,7 @@ ifileh:close ()
 
 --# Init #--
 if cl.I then
-  nbuffer[1] = ". libbutter.sh"
+  nbuffer[1] = ". libbutter"
 else
   cl.vbl    = false
   cl.no_bl  = true
