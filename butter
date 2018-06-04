@@ -85,7 +85,7 @@ for lnum,line in pairs (buffer) do
   --- One-per-line
   -- [*]
   if line:match "^%b[]" then
-    local prefix = line:match "^%[(.-)%]"
+    local prefix = line:match "^%[(.-)%]":gsub("-","_")
     butter.curprefix = prefix ~= ":" and prefix or ""
 
     line = "#@noprint"
@@ -93,7 +93,11 @@ for lnum,line in pairs (buffer) do
   elseif line:match "^([^@]-):" then
     butter.curfn         = line:match "^(.-):"
     butter.state.fn.open = true
-    line = butter.curprefix.."_"..butter.curfn:gsub("-","_").." () {"
+    if butter.curprefix ~= "" then
+      line = butter.curprefix.."_"..butter.curfn:gsub("-","_").." () {"
+    else
+      line = butter.curfn:gsub("-","_").." () {"
+    end
   end
 
   --- Free replaces
