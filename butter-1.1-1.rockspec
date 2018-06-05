@@ -1,9 +1,9 @@
 package = "butter"
-version = "1.0.1-1"
+version = "1.1-1"
 
 source = {
   url = "git://github.com/daelvn/butter",
-  tag = "v1.0.1"
+  tag = "v1.1"
 }
 
 description = {
@@ -25,7 +25,7 @@ build = {
   type    = "none",
   install = {
     bin   = {
-      butter    = "butter",
+      butter    = "butter.lua",
       libbutter = "libbutter.sh"
     },
   }

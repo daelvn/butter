@@ -59,6 +59,7 @@ else
 end
 
 --# Replacing #--
+-- !fld         => px_fld
 -- px#fld       => px_fld
 -- [*]          -> butter.curprefix = *
 -- *:           -> butter.curfn = *
@@ -142,6 +143,12 @@ for lnum,line in pairs (buffer) do
     local mi,me       = line:find "[^# ]+#[^# ]+"
     local bef,aft,mid = line:sub (1,mi-1), line:sub (me+1), line:sub (mi,me)
     line              = bef .. mid:gsub ("-", "_"):gsub ("([^# ]+)#([^# ]+)", "%1_%2") .. aft
+  end
+  -- !%w+
+  if line:find "%*[a-zA-Z_-]+" then
+    local mi,me       = line:find "%*[a-zA-Z_-]+"
+    local bef,aft,mid = line:sub (1,mi-1), line:sub (me+1), line:sub (mi,me)
+    line              = bef .. mid:gsub ("-", "_"):gsub ("%*([a-zA-Z_]+)", butter.curprefix .. "_%1") .. aft
   end
   --- Sources
   if line:match "#@source" then butter.state.source = #nbuffer end
