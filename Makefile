@@ -1,2 +1,2 @@
 all:
-	lua butterc.lua -i libbutter.butter -o libbutter.sh
+	lua butter.lua -i libbutter.butter -o libbutter.sh

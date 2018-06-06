@@ -59,7 +59,10 @@ else
 end
 
 --# Replacing #--
--- !fld         => px_fld
+butter.state     = { fn = { close_posl = {}, open = false}, source = 1, leak = false, last = 0 }
+butter.curprefix = ""
+butter.curfn     = ""
+-- *fld         => px_fld
 -- px#fld       => px_fld
 -- [*]          -> butter.curprefix = *
 -- *:           -> butter.curfn = *
@@ -70,49 +73,65 @@ end
 -- #@[iewk]: *  => butter_log[iewk] "%butter.curprefix#%butter.curfn" "*" (if -I, !--bl)
 -- #@source      > Place sourcing in this location
 -- #@@           > Stop processing
-butter.state     = { fn = { close_posl = {}, open = false}, source = 1, leak = false, last = 0 }
-butter.curprefix = ""
-butter.curfn     = ""
-for lnum,line in pairs (buffer) do
-  butter.state.last = lnum
-  if cl.v then
-    print ("print state", lnum)
-    print (butter.state.fn.open, butter.state.last)
+butter.replacers = {}
+-- *fld
+function butter.replacers.locals (line)
+  if line:find "%*[a-zA-Z_-]+" then
+    local mi,me       = line:find "%*[a-zA-Z_-]+"
+    local bef,aft,mid = line:sub (1,mi-1), line:sub (me+1), line:sub (mi,me)
+    return bef .. mid:gsub ("-", "_"):gsub ("%*([a-zA-Z_]+)", butter.curprefix .. "_%1") .. aft
   end
-  if butter.state.fn.open and not line:match "^%s+" then
-    butter.state.fn.open = false
-    table.insert (nbuffer, "}")
+  return line
+end
+-- px#fld
+function butter.replacers.fields (line)
+  if line:find "[^# ]+#[^# ]+" then
+    local mi,me       = line:find "[^# ]+#[^# ]+"
+    local bef,aft,mid = line:sub (1,mi-1), line:sub (me+1), line:sub (mi,me)
+    return bef .. mid:gsub ("-", "_"):gsub ("([^# ]+)#([^# ]+)", "%1_%2") .. aft
   end
-  --- One-per-line
-  -- [*]
+  return line
+end
+-- [px]
+function butter.replacers.prefix (line)
   if line:match "^%b[]" then
     local prefix = line:match "^%[(.-)%]":gsub("-","_")
     butter.curprefix = prefix ~= ":" and prefix or ""
-
-    line = "#@noprint"
-  -- *:
-  elseif line:match "^([^@]-):" then
+    return "#@noprint"
+  end
+  return line
+end
+-- fld:
+function butter.replacers.fn (line)
+  if line:match "^([^@]-):" then
     butter.curfn         = line:match "^(.-):"
     butter.state.fn.open = true
     if butter.curprefix ~= "" then
-      line = butter.curprefix.."_"..butter.curfn:gsub("-","_").." () {"
+      return butter.curprefix.."_"..butter.curfn:gsub("-","_").." () {"
     else
-      line = butter.curfn:gsub("-","_").." () {"
+      return butter.curfn:gsub("-","_").." () {"
     end
   end
-
-  --- Free replaces
-  -- #@v[iewk]
+  return line
+end
+-- @fld
+function butter.replacers.symbol (line) return line:gsub ("@([0-9*?@])", '"$%1"') end
+-- #@source
+function butter.replacers.source (line)
+  if line:match "#@source" then butter.state.source = #nbuffer; return "#@noprint" end
+  return line
+end
+-- #@@
+function butter.replacers.leak (line) if line:match "#@@" then butter.state.leak = true; return true end end
+-- #@v[iewk]
+function butter.replacers.logv (line)
   if line:match "#@v[iewk]" then
     if cl.vbl and not cl.no_bl then
       if cl.v then
-        print "dump"
-        print (line)
-        print (line:match "^%s*")
-        print (line:match "#@v([iewk])")
-        print (line:match "%:(.*)")
+        print "dump-viewk"
+        print (line:match "^%s*", line:match "#@v([iewk])", line:match "%:(.*)")
       end
-      line = line:match "^%s*"
+      return line:match "^%s*"
           .. "libbutter_log_"
           .. (line:match "#@v([iewk])")
           .. ' "'
@@ -123,42 +142,78 @@ for lnum,line in pairs (buffer) do
           .. (line:match "%:%s*(.*)")
           .. '"'
     else
-      line = "#@noprint"
+      return "#@noprint"
     end
   end
-  -- #@[iewk]
+  return line
+end
+-- #@[iewk]
+function butter.replacers.log (line)
   if line:match "#@[iewk]" then
     if not cl.no_bl then
-      line = line:match "^%s+".."libbutter_log_"..line:match "#@v([iewk])"
-          .. ' "' .. butter.curprefix .. "#" .. butter.curfn .. '" "'
-          .. (line:match ":(.+)" or "") .. '"'
+      if cl.v then
+        print "dump-iewk"
+        print (line:match "^%s*":gsub("%s","*"), line:match "#@([iewk])", line:match "%:%s*(.*)")
+      end
+      return (line:match "^%s+")
+          .. "libbutter_log_"
+          .. (line:match "#@([iewk])")
+          .. ' "'
+          .. butter.curprefix
+          .. "#"
+          .. butter.curfn
+          .. '" "'
+          .. (line:match "%:%s*(.*)")
+          .. '"'
     else
-      line = "#@noprint"
+      return "#@noprint"
     end
   end
-  -- @n*
-  line = line:gsub ("@(%d)", '"$%1"')
-  -- %w#%w
-  if line:find "[^# ]+#[^# ]+" then
-    local mi,me       = line:find "[^# ]+#[^# ]+"
-    local bef,aft,mid = line:sub (1,mi-1), line:sub (me+1), line:sub (mi,me)
-    line              = bef .. mid:gsub ("-", "_"):gsub ("([^# ]+)#([^# ]+)", "%1_%2") .. aft
-  end
-  -- !%w+
-  if line:find "%*[a-zA-Z_-]+" then
-    local mi,me       = line:find "%*[a-zA-Z_-]+"
-    local bef,aft,mid = line:sub (1,mi-1), line:sub (me+1), line:sub (mi,me)
-    line              = bef .. mid:gsub ("-", "_"):gsub ("%*([a-zA-Z_]+)", butter.curprefix .. "_%1") .. aft
-  end
-  --- Sources
-  if line:match "#@source" then butter.state.source = #nbuffer end
+  return line
+end
 
-  --- Other
-  if line:match "#@@" then butter.state.leak = true; break end
+--# Iterate #--
+for lnum,line in pairs (buffer) do
+  if cl.v then print "--------------------------" end
+  -- Set last
+  butter.state.last = lnum
+  -- Verbose
+  if cl.v then
+    print ("print state", lnum, line)
+    print (butter.state.fn.open, butter.state.last)
+  end
+  -- Autoclose functions
+  if butter.state.fn.open and not line:match "^%s+" then
+    butter.state.fn.open = false
+    table.insert (nbuffer, "}")
+  end
+  -- Primary replaces
+  -- #@@
+  if butter.replacers.leak (line) then break end
+  -- @?
+  line = butter.replacers.symbol (line)
+  -- Fields and locals
+  line = butter.replacers.locals (line)
+  line = butter.replacers.fields (line)
+
+  -- Prefixes and functions
+  line = butter.replacers.prefix (line)
+  line = butter.replacers.fn     (line)
+
+  -- Sources
+  line = butter.replacers.source (line)
+  -- Logging
+  -- #@v?[iewk]
+  line = butter.replacers.logv (line)
+  line = butter.replacers.log  (line)
+  -- Print
   if not line:match "^#@noprint" then table.insert (nbuffer, line) end
 end
+-- Autoclose functions
 if butter.state.fn.open then table.insert (nbuffer, "}") end
+-- Place sources
 for _,src in pairs (cl.i2) do table.insert (nbuffer, butter.state.source, ". "..src) end
+-- Leak?
 if butter.state.leak then
   for i = butter.state.last, #buffer do
     table.insert (nbuffer, buffer[i])

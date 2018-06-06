@@ -2,18 +2,18 @@
 # By daelvn
 # Functions for butter files
 
-LIBBUTTER_LOGI="tput sgr0"
-LIBBUTTER_LOGK="tput setaf 2"
-LIBBUTTER_LOGW="tput setaf 3"
-LIBBUTTER_LOGE="tput setaf 1"
+LIBBUTTER_LOGI=$(tput sgr0)
+LIBBUTTER_LOGK=$(tput setaf 2)
+LIBBUTTER_LOGW=$(tput setaf 3)
+LIBBUTTER_LOGE=$(tput setaf 1)
 
 [_libbutter]
 log:
-  $1
+  printf $1
   tput bold
   echo @2
   tput sgr0
-  $1
+  printf $1
   echo "  $3"
   tput sgr0
 
