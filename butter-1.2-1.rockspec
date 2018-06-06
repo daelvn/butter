@@ -1,9 +1,9 @@
 package = "butter"
-version = "1.1-1"
+version = "1.2-1"
 
 source = {
   url = "git://github.com/daelvn/butter",
-  tag = "v1.1"
+  tag = "v1.2"
 }
 
 description = {

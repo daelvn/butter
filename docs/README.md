@@ -69,6 +69,13 @@ You can disable all printing with `--no-print`.
 You can source several other files with `+i`. They will be included in the first line or wherever `#@source` is.
 ### Stop processing
 You can stop processing with the `#@@` tag.
+### Local variables
+You can now declare and use local variables by prefixing them with `*`
+```sh
+[fs]
+*dist="dir/"
+echo "$*dist"
+```
 
 ## License
 This utility is licensed under the [MIT license](LICENSE.md).
