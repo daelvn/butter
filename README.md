@@ -78,7 +78,7 @@ echo "$*dist"
 ```
 
 ## License
-This utility is licensed under the [MIT license](LICENSE.md).
+This project is released to the public domain.
 
 ## Maintainer
 This project is maintained by [daelvn](https://github.com/daelvn)
