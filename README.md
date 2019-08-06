@@ -76,9 +76,22 @@ You can now declare and use local variables by prefixing them with `*`
 *dist="dir/"
 echo "$*dist"
 ```
+### Declares
+You can now prettily declare variables by prefixing lines with `#=`
+```sh
+#= a   = 1
+#= bb  = '2'
+#= ccc = 3
+```
+### Arrays
+You can declare arrays in a portable manner:
+```sh
+#@new arr_num[]
+#@new arr_assoc{}
+```
 
 ## License
-This utility is licensed under the [MIT license](LICENSE.md).
+This project is released to the public domain.
 
 ## Maintainer
 This project is maintained by [daelvn](https://github.com/daelvn)

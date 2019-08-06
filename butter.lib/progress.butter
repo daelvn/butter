@@ -1,0 +1,34 @@
+# butter-progress | 09.06.2018
+# By daelvn
+# Progress bars and loaders with Butter
+
+[butter#progress]
+
+#@# Call the spinner like:
+# butter#progress#spinner &
+# #= *spin-pid = $!
+## To stop automatically at exit
+# trap "kill -9 $*spin-pid" $(seq 0 15)
+## To stop the spinner
+# kill -9 $*spin-pid
+spinner:
+  #= *spin-animation = "/|\\-/|\\-"
+  while true; do
+    for i in $(seq 1 8); do
+      echo -n "${*spin-animation:$i:1}"
+      echo -en "\010"
+      sleep 1
+    done
+  done
+
+#@# Call the progress bar like:
+## n -> Current state
+## e -> Final state
+# butter#progress#bar n e
+bar:
+  #= *bar-progress = (${1}*100/${2}*100)/100
+  #= *bar-done     = (${*progress}*4)/10
+  #= *bar-left     = 40-*bar-done
+  #= *bar--fill    = $(printf "%${*bar-done}s")
+  #= *bar--empty   = $(printf "%${*bar-left}s")
+  printf "\r[${*bar--fill// /#}${*bar--empty// /-}] $*bar-progress%%"

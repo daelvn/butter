@@ -1,0 +1,19 @@
+# butter-exceptions | 09.06.2018
+# By daelvn
+# Exception library for use with Butter
+
+. log
+
+[butter#exceptions]
+tell:
+  printf $1
+  tput bold
+  echo @2
+  tput sgr0
+  printf $1
+  echo "  $3"
+  tput sgr0
+
+yell: tell "$butter#log#LOGW" @0 @* >&2
+die:  yell @*; exit 111
+try:  @@ || die @*

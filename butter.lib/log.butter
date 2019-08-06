@@ -1,0 +1,24 @@
+# butter | 03.06.2018
+# By daelvn
+# Functions for butter files
+
+
+[butter#log]
+
+*LOGI=$(tput sgr0)
+*LOGK=$(tput setaf 2)
+*LOGW=$(tput setaf 3)
+*LOGE=$(tput setaf 1)
+log:
+  printf $1
+  tput bold
+  echo @2
+  tput sgr0
+  printf $1
+  echo "  $3"
+  tput sgr0
+
+log-i: log "$*LOGI" @1 @2
+log-k: log "$*LOGK" @1 @2
+log-w: log "$*LOGW" @1 @2
+log-e: log "$*LOGE" @1 @2

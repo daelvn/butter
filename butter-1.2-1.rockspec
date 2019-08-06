@@ -25,8 +25,9 @@ build = {
   type    = "none",
   install = {
     bin   = {
-      butter    = "butter.lua",
+      butter   = "butterc.lua",
       libbutter = "libbutter.sh"
     },
+    lua   = { butter = "butter.lua" }
   }
 }
