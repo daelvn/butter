@@ -1,5 +1,5 @@
 package = "butter"
-version = "1.2-1"
+version = "1.2-2"
 
 source = {
   url = "git://github.com/daelvn/butter",
@@ -13,7 +13,6 @@ description = {
     indent-based function declaration and others.
   ]],
   homepage = "http://me.daelvn.ga/butter",
-  license  = "MIT"
 }
 
 dependencies = {
